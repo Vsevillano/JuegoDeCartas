@@ -1,4 +1,5 @@
 package juegoDeCartas;
+
 import juegoDeCartas.excepciones.NoQuedanCartasException;
 import juegoDeCartas.excepciones.NombreInvalidoException;
 import utiles.DeseaContinuar;
@@ -30,82 +31,36 @@ import utiles.DeseaContinuar;
  * @version 1.0
  */
 public class Partida {
+	private static final double PUNTUACION_MAXIMA = 7.5;
 	private Baraja baraja;
-	private Jugadores jugadores;
 	private Jugadores participantes = new Jugadores();
+
 	/**
 	 * Constructor de la partida
 	 * 
 	 * @param jugadores
+	 * 
+	 * @param jugadores
 	 *            Array con el numero de jugadores
 	 */
-	public Partida() {
+	public Partida(Jugadores participantes) {
 		baraja = new Baraja();
-		jugadores = new Jugadores();
+		this.participantes = participantes;
 	}
 
-	/**
-	 * Añadir a un jugador al juego
-	 * @param nombre
-	 * @return
-	 * @throws NombreInvalidoException 
-	 */
-	boolean addJugador(String nombre) throws NombreInvalidoException {
-		if (jugadores.add(nombre))
-			return true;
-		return false;
-	}
-	
-	/**
-	 * Busca a un jugador en el juego
-	 * @param nombre
-	 * @throws NombreInvalidoException
-	 */
-	String buscarJugador(String nombre) throws NombreInvalidoException {
-		if (jugadores.buscar(nombre) == null)
-			return "No se pudo encontrar";
-		return "" + jugadores.buscar(nombre);
-	}
-	/**
-	 * Elimina a un jugador al juego
-	 * @param nombre
-	 * @return
-	 * @throws NombreInvalidoException 
-	 */
-	boolean removeJugador(String nombre) throws NombreInvalidoException {
-		if (jugadores.remove(nombre))
-			return true;
-		return false;
-	}
-	
-	/**
-	 * Mustra el arraylist de jugadores
-	 * @return
-	 */
-	StringBuilder mostrarJugadores() {
-		return jugadores.mostrarJugadores();
-	}
-	
-	/**
-	 * Comprueba si el ArrayList de jugadores esta vacio 
-	 * @return
-	 */
-	boolean isEmptyJugador() {
-		return jugadores.isEmpty();
-	}
-	
 	/**
 	 * Saca una carta de la baraja
 	 * 
 	 * @return
 	 * @throws NoQuedanCartasException
 	 */
-	Carta sacarCarta() throws NoQuedanCartasException {
+	Carta sacarCarta() {
 		return baraja.darMano();
 	}
-	
+
 	/**
 	 * Indica el valor de la carta sacada
+	 * 
 	 * @return
 	 */
 	double valorCarta() {
@@ -113,32 +68,90 @@ public class Partida {
 	}
 
 	/**
-	 * Añade un participante
-	 * @param nombre
-	 * @return
-	 * @throws NombreInvalidoException
-	 */
-	boolean addParticipante(String nombre) throws NombreInvalidoException {
-		if (participantes.add(nombre))
-			return true;
-		else
-			return false;
-	}
-	
-	/**
-	 * Mustra un participante
+	 * Muestra la lista de participantes
+	 * 
 	 * @return
 	 */
 	StringBuilder mostrarParticipantes() {
 		return participantes.mostrarJugadores();
 	}
-	
+
 	/**
-	 * Indica el numero de participantes
+	 * Devuelve el numero de participantes
+	 * 
 	 * @return
 	 */
 	int sizeParticipantes() {
 		return participantes.size();
 	}
-	
+
+	/**
+	 * Puntuacion maxima
+	 * 
+	 * @return
+	 */
+	double puntuacionMax() {
+		return PUNTUACION_MAXIMA;
+	}
+
+	/**
+	 * Comprueba el ganador de la partida
+	 * 
+	 * @return
+	 * @throws JugadorNoExisteException
+	 * @throws NombreInvalidoException 
+	 */
+	String comprobarGanador() throws JugadorNoExisteException, NombreInvalidoException {
+		String ganador = participantes.get(0).toString();
+
+		for (int i = 1; i < participantes.size(); i++) {
+			if (participantes.get(i - 1).getPuntuacion() <= puntuacionMax()) {
+				if (participantes.get(i).getPuntuacion() >= participantes.get(i - 1).getPuntuacion()
+						&& participantes.get(i).getPuntuacion() < puntuacionMax())
+					ganador = participantes.get(i).toString();
+			} else
+				ganador = "Nadie gana.";
+		}
+		actualizarRanking(ganador);
+		return ganador;
+	}
+
+	/**
+	 * 
+	 * @param ganador
+	 * @throws JugadorNoExisteException
+	 * @throws NombreInvalidoException
+	 */
+	private void actualizarRanking(String ganador) throws JugadorNoExisteException, NombreInvalidoException {
+		for (int i = 0; i < participantes.size(); i++) {
+				participantes.get(i).incPartidasJugadas();
+				participantes.get(i).incPartidasGanadas();
+				participantes.get(i).incPartidasPerdidas();
+			}
+		
+	}
+
+	/**
+	 * Juega la partida
+	 * 
+	 * @throws NoQuedanCartasException
+	 * @throws JugadorNoExisteException
+	 * @throws NombreInvalidoException 
+	 */
+	void jugar() throws JugadorNoExisteException, NombreInvalidoException {
+		do {
+			for (int i = 0; i < participantes.size(); i++) {
+				do {
+					System.out.println("Turno del jugador " + participantes.get(i).getNombre());
+					System.out.println(sacarCarta());
+					participantes.get(i).setPuntuacion(participantes.get(i).getPuntuacion() + valorCarta());
+					System.out.println("Puntuacion: " + participantes.get(i).getPuntuacion());
+				} while (participantes.get(i).getPuntuacion() <= puntuacionMax()
+						&& DeseaContinuar.continuar("¿Quiere carta? s/n"));
+			}
+			System.out.println("Ganador: " + comprobarGanador());
+		} while (DeseaContinuar.continuar("¿Jugamos otra los mismos? s/n"));
+		// Vaciamos la lista de participantes 
+		participantes.clear();
+	}
 }

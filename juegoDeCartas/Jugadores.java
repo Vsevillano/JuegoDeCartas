@@ -49,11 +49,14 @@ public class Jugadores {
 	 * @param nombre
 	 * @return true si es añadiro
 	 * @throws NombreInvalidoException
+	 * @throws JugadorYaExisteException
 	 */
-	boolean add(String nombre) throws NombreInvalidoException {
-		if (jugadores.add(new Jugador(nombre)))
-			return true;
-		return false;
+	boolean add(String nombre) throws NombreInvalidoException, JugadorYaExisteException {
+		Jugador jugador = new Jugador(nombre);
+		if (!jugadores.contains(jugador))
+			if (jugadores.add(jugador))
+				return true;
+		throw new JugadorYaExisteException("El jugador ya existe.");
 	}
 
 	/**
@@ -62,41 +65,42 @@ public class Jugadores {
 	 * @param nombre
 	 * @return true o false si es borrado o no
 	 * @throws NombreInvalidoException
+	 * @throws JugadorNoExisteException
 	 */
-	boolean remove(String nombre) throws NombreInvalidoException {
+	boolean remove(String nombre) throws NombreInvalidoException, JugadorNoExisteException {
 		Jugador jugador = new Jugador(nombre);
 		if (jugadores.contains(jugador))
 			return jugadores.remove(jugador);
-		return false;
-		
+		throw new JugadorNoExisteException("El jugador no existe");
 	}
 
 	/**
 	 * Busca un jugador por nombre
+	 * 
 	 * @param nombre
 	 * @return el elemento con el nombre indicado
 	 * @throws NombreInvalidoException
+	 * @throws JugadorNoExisteException
 	 */
-	Jugador buscar(String nombre) throws NombreInvalidoException {
+	Jugador buscar(String nombre) throws NombreInvalidoException, JugadorNoExisteException {
 		Jugador jugador = new Jugador(nombre);
-			if (jugadores.contains(jugador)) {
-				return jugadores.get(jugadores.indexOf(jugador));
-			}
-			return null;
-			
-	}
+		if (jugadores.contains(jugador))
+			return jugadores.get(jugadores.indexOf(jugador));
+		throw new JugadorNoExisteException("El jugador no existe");
 
+	}
 
 	/**
 	 * Obtiene el jugador dado un nombre
 	 * 
 	 * @param nombre
 	 * @return el elemento en la posicion indicada
+	 * @throws JugadorNoExisteException
 	 */
-	Jugador get(int indice) {
+	Jugador get(int indice) throws JugadorNoExisteException {
 		if (jugadores.contains(jugadores.get(indice)))
 			return jugadores.get(indice);
-		return null;
+		throw new JugadorNoExisteException("No se pudo encontrar");
 	}
 
 	/**
@@ -111,18 +115,34 @@ public class Jugadores {
 
 	/**
 	 * Indica si el arrayList de jugadores esta vacio
+	 * 
 	 * @return true o false en funcion de si esta vacio o no
 	 */
 	boolean isEmpty() {
 		return jugadores.isEmpty();
 	}
+
+	void clear() {
+		jugadores.clear();
+	}
 	
 	/**
 	 * Devuelve el numero de elementos en el arraylist de jugadores
+	 * 
 	 * @return entero que indica el nuero de jugadores
 	 */
 	int size() {
 		return jugadores.size();
+	}
+
+	/**
+	 * Indica si contiene un elemento
+	 * 
+	 * @param jugador
+	 * @return
+	 */
+	boolean contains(Jugador jugador) {
+		return jugadores.contains(jugador);
 	}
 
 	/**
@@ -133,5 +153,11 @@ public class Jugadores {
 		for (Iterator<Jugador> iterator = jugadores.iterator(); iterator.hasNext();)
 			cadena.append("\n" + "" + iterator.next());
 		return cadena;
+	}
+
+	
+	public boolean contains(String nombre) throws NombreInvalidoException {
+		Jugador jugador = new Jugador(nombre);
+		return jugadores.contains(jugador);
 	}
 }

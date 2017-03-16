@@ -39,7 +39,7 @@ public class Baraja {
 	 * Array del tamaño del numero de la baraja
 	 */
 	private ArrayList<Carta> baraja = new ArrayList<Carta>();
-	
+
 	/**
 	 * Constructor de la baraja formada por todas las cartas
 	 */
@@ -54,6 +54,7 @@ public class Baraja {
 
 	/**
 	 * Obtiene el array de carta
+	 * 
 	 * @return carta
 	 */
 	private ArrayList<Carta> getBaraja() {
@@ -62,19 +63,21 @@ public class Baraja {
 
 	/**
 	 * Comprueba el mazo y saca una carta valida
+	 * 
 	 * @return una carta no null
-	 * @throws NoQuedanCartasException 
+	 * @throws NoQuedanCartasException
 	 */
-	Carta darMano() throws NoQuedanCartasException {
+	Carta darMano() {
 		if (!baraja.isEmpty()) {
 			mano = baraja.remove(0);
 			return mano;
 		} else
-			throw new NoQuedanCartasException("No quedan cartas");
+			return null;
 	}
-	
+
 	/**
 	 * Indica el valor de la carta sacada
+	 * 
 	 * @return
 	 */
 	double valorCartaSacada() {
@@ -83,6 +86,7 @@ public class Baraja {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

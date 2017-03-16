@@ -33,7 +33,7 @@ public class TestSieteYMedia {
 	/**
 	 * Creamos la partida
 	 */
-	private static Partida partida = new Partida();
+	private static Partida partida;
 	/**
 	 * Menu para opciones generales
 	 */
@@ -42,131 +42,149 @@ public class TestSieteYMedia {
 	 * Menu para jugar
 	 */
 	private static Menu menuJuego;
-	/**
-	 * Estructura de jugadores
-	 */	
-	
-	public static void main(String[] args) {
-		menuGeneral = new Menu("*** Menu Siete y Media ***", new String[] {"Añadir jugador","Eliminar jugador", "Buscar jugador","Mostrar jugadores", "Jugar", "Ranking", "Salir"});
-		menuJuego = new Menu("*** Menu del jugador ***", new String[] {"Escoger jugadores", "Mostrar escogidos","Iniciar juego", "Volver"});
+
+	private static Jugadores jugadores = new Jugadores();
+	private static Jugadores participantes = new Jugadores();
+
+	public static void main(String[] args) throws NombreInvalidoException, JugadorYaExisteException {
+		menuGeneral = new Menu("*** Menu Siete y Media ***", new String[] { "Añadir jugador", "Eliminar jugador",
+				"Buscar jugador", "Mostrar jugadores", "Jugar", "Ranking", "Salir" });
+		menuJuego = new Menu("*** Menu del jugador ***",
+				new String[] { "Escoger jugadores", "Mostrar escogidos", "Iniciar juego", "Volver" });
 		int opcion;
+
+		cargaJugadores();
 		do {
 			opcion = menuGeneral.gestionar();
 			try {
 				gestionarOpciones(opcion);
-			} catch (NombreInvalidoException | NoQuedanCartasException e) {
+			} catch (JugadorNoExisteException | NombreInvalidoException | JugadorYaExisteException e) {
 				System.err.println(e.getMessage());
 			}
 		} while (opcion != 7);
 	}
 
 	/**
-	 * Gestiona las opciones del menu principal
-	 * @param opcion
-	 * @throws NoQuedanCartasException 
-	 * @throws NombreInvalidoException 
+	 * Gestiona las opciones del menu principal @throws
+	 * @throws JugadorYaExisteException 
+	 * @throws JugadorNoExisteException 
+	 * 
 	 */
-	private static void gestionarOpciones(int opcion) throws NoQuedanCartasException, NombreInvalidoException {
+	private static void gestionarOpciones(int opcion) throws NombreInvalidoException, JugadorYaExisteException, JugadorNoExisteException {
 		switch (opcion) {
 		case 1:
 			// Añadir jugador
-			if(partida.addJugador(Teclado.leerCadena("Nombre del jugador:")))
+			if (jugadores.add(Teclado.leerCadena("Nombre del jugador:")))
 				System.out.println("Jugador añadido");
-			else
-				System.out.println("No se pudo añadir");
-			break;
 		case 2:
 			// Eliminar jugador
-			if (partida.removeJugador(Teclado.leerCadena("Nombre del jugador:")))
+			if (jugadores.isEmpty())
+				System.out.println("No hay jugadores que eliminar");
+			else if (jugadores.remove(Teclado.leerCadena("Nombre del jugador:")))
 				System.out.println("Jugador eliminado");
-			else
-				System.out.println("No se pudo eliminar");
+
 			break;
 		case 3:
 			// Buscar jugador
-			System.out.println(partida.buscarJugador(Teclado.leerCadena("Nombre del jugador:")));
+			System.out.println(jugadores.buscar(Teclado.leerCadena("Nombre del jugador:")));
 			break;
 		case 4:
 			// Mostrar jugadores
-			if (!partida.isEmptyJugador()) {
-				System.out.println("Lista de jugadores:" + partida.mostrarJugadores());
-			}
-			else
+			if (!jugadores.isEmpty()) {
+				System.out.println("Lista de jugadores:" + jugadores.mostrarJugadores());
+			} else
 				System.out.println("Lista de jugadores vacia!");
 			break;
 		case 5:
 			// Jugar
 			do {
-			opcion = menuJuego.gestionar();
-			gestionarOpcionesJuego(opcion);
+				opcion = menuJuego.gestionar();
+				gestionarOpcionesJuego(opcion);
 			} while (opcion != 4);
 			break;
 		case 6:
 			// Ranking
-			
+			if (!jugadores.isEmpty()) {
+				System.out.println("RANKING:" + jugadores.mostrarJugadores());
+			} else
+				System.out.println("Lista de jugadores vacia!");
 			break;
 		case 7:
-			//Salir
+			// Salir
 			System.out.println("Adios");
 			break;
 		}
 	}
-	
+
 	/**
 	 * Gestiona las opciones del menu de modificacion de jugadores
-	 * @param opcion escogida
-	 * @throws NoQuedanCartasException 
-	 * @throws NombreInvalidoException 
+	 * 
+	 * @param opcion
+	 *            escogida
+	 * @throws JugadorNoExisteException 
+	 * @throws JugadorYaExisteException 
 	 */
-	private static void gestionarOpcionesJuego(int opcion) throws NoQuedanCartasException, NombreInvalidoException {
+	private static void gestionarOpcionesJuego(int opcion) throws NombreInvalidoException, JugadorNoExisteException, JugadorYaExisteException {
 		switch (opcion) {
 		case 1:
 			// Escoger jugadores
-			if (!partida.isEmptyJugador()) {
-				System.out.println("Lista de jugadores:" + partida.mostrarJugadores());
-				escogerJugadores();
-			}
-			else
+			if (!jugadores.isEmpty()) {
+				System.out.println("Lista de jugadores:" + jugadores.mostrarJugadores());
+				escogerParticipantes();
+			} else
 				System.out.println("Debes crear antes algun jugador!");
-			
 			break;
 		case 2:
 			// Mostrar escogidos
-			System.out.println("Jugadores escogidos:\n" + partida.mostrarParticipantes());
+			if (!participantes.isEmpty()) {
+				System.out.println("Jugadores escogidos:\n" + participantes.mostrarJugadores());
+			} else
+				System.out.println("Debes escoger algun jugador! Minimo 2.");
 			break;
 		case 3:
-			jugar();
+			// Iniciar juego
+			partida = new Partida(participantes);
+			if (participantes.size() >= 2) {
+				partida.jugar();
+			} else
+				System.out.println("Escoge 2 jugadores al menos.");
 			break;
 		case 4:
 			// Salir
+			System.out.println("Volviendo...");
 			break;
-		}
-	}
-	
-	/**
-	 * 
-	 * @throws NoQuedanCartasException
-	 */
-	private static void jugar() throws NoQuedanCartasException {
-		double puntuacion = 0;
-		for (int i = 0; i < partida.sizeParticipantes(); i++) {
-			do {
-				System.out.println("Turno del jugador " + (i+1));
-				System.out.println(partida.sacarCarta());
-				puntuacion += partida.valorCarta();
-				System.out.println(puntuacion);
-			} while (DeseaContinuar.continuar("¿Quiere carta? s/n"));
 		}
 	}
 
 	/**
-	 * Escoge los jugadores
-	 * @throws NombreInvalidoException 
+	 * Escoge a los jugadores que van a jugar
+	 * @throws JugadorYaExisteException 
 	 */
-	public static void escogerJugadores() throws NombreInvalidoException {
+	private static Jugadores escogerParticipantes() throws NombreInvalidoException, JugadorYaExisteException {
+		String nombre;
 		do {
-			if(!partida.addParticipante(Teclado.leerCadena("Nombre del jugador:")))
-				System.out.println("No se pudo añadir");
+			 nombre = Teclado.leerCadena("Nombre del jugador:");
+			if (jugadores.contains(nombre))
+				if (participantes.add(nombre)) 
+					System.out.println("Participante añadido");
 		} while (DeseaContinuar.continuar("¿Añadir otro? s/n"));
+		return participantes;
+	}
+
+	/**
+	 * Carga estatica de jugadores para facilitar pruebas
+	 * 
+	 * @throws NombreInvalidoException
+	 * @throws JugadorYaExisteException 
+	 */
+	static void cargaJugadores() throws NombreInvalidoException, JugadorYaExisteException {
+		jugadores.add("Guillermo");
+		jugadores.add("Pepe");
+		jugadores.add("Juan");
+		jugadores.add("Jose");
+		jugadores.add("Jaime");
+		jugadores.add("Jesus");
+		jugadores.add("Luis");
+		jugadores.add("Victor");
 	}
 }

@@ -65,13 +65,13 @@ public class Jugador {
 	private static boolean nombreValido(String nombre) {
 		return patronNombre.matcher(nombre).matches();
 	}
-	
+
 	/**
 	 * Constructor del Jugador
 	 * 
 	 * @param nombre
 	 *            del jugador
-	 * @throws NombreInvalidoException 
+	 * @throws NombreInvalidoException
 	 */
 	public Jugador(String nombre) throws NombreInvalidoException {
 		setNombre(nombre);
@@ -98,23 +98,25 @@ public class Jugador {
 
 	/**
 	 * Obtiene el nombre del jugador
+	 * 
 	 * @return
 	 */
-	private String getNombre() {
+	String getNombre() {
 		return nombre;
 	}
-	
+
 	/**
 	 * Nombre del jugador
 	 * 
 	 * @param nombre
 	 *            del jugador
-	 * @throws NombreInvalidoException 
+	 * @throws NombreInvalidoException
 	 */
 	private void setNombre(String nombre) throws NombreInvalidoException {
-		if(nombreValido(nombre))
+		if (nombreValido(nombre))
 			this.nombre = nombre;
-		else throw new NombreInvalidoException("Nombre no valido");
+		else
+			throw new NombreInvalidoException("Nombre no valido");
 	}
 
 	/**
@@ -193,16 +195,6 @@ public class Jugador {
 	void incPartidasJugadas() {
 		setPartidasJugadas(getPartidasJugadas() + 1);
 	}
-	
-	/**
-	 * Incrementa la puntuacion del jugador en la partida
-	 * 
-	 * @param jugador
-	 * @param valor
-	 */
-	void incrementarPuntuacion(Jugador jugador, double valor) {
-		jugador.setPuntuacion(jugador.getPuntuacion() + valor);
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -241,11 +233,12 @@ public class Jugador {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return getNombre() + " | PG: " + getPartidasGanadas() + " | PP: "
-				+ getPartidasPerdidas() + " | PJ:" + getPartidasJugadas() + " | Punt.: " + getPuntuacion();
+		return getNombre() + " | PG: " + getPartidasGanadas() + " | PP: " + getPartidasPerdidas() + " | PJ:"
+				+ getPartidasJugadas();
 	}
 }
